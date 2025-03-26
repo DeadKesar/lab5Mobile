@@ -11,8 +11,16 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.lab5mobile.databinding.ActivityMainBinding
 import android.app.Notification
 import android.app.NotificationChannel
+import android.content.ComponentName
+import android.content.ServiceConnection
+import android.os.IBinder
+import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     // launcher для запроса разрешения
@@ -63,7 +71,23 @@ class MainActivity : AppCompatActivity() {
         val manager = getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(channel)
     }
-
+    private val collStoryBobConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?)
+        {
+            val coolStoryBob = (service as CoolStoryBobService.LocalBinder).getBob()
+            onProcessBobStories(coolStoryBob)
+        }
+        override fun onServiceDisconnected(name: ComponentName?) { }
+    }
+    private fun onProcessBobStories(coolStoryBob: CoolStoryBob) {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                coolStoryBob.stories.collect {
+                    story ->
+                    Log.d("MainActivity", "onProcessBobStories: $story") }
+            }
+        }
+    }
 
     // отправка уведомления
     private fun onSendNotification() {
