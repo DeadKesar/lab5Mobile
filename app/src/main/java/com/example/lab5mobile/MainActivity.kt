@@ -12,9 +12,11 @@ import com.example.lab5mobile.databinding.ActivityMainBinding
 import android.app.Notification
 import android.app.NotificationChannel
 import android.content.ComponentName
+import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
 import android.util.Log
+import android.widget.Button
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.Lifecycle
@@ -26,14 +28,24 @@ class MainActivity : AppCompatActivity() {
     // launcher для запроса разрешения
     private val requestPostNotification = registerForActivityResult(
         ActivityResultContracts.RequestPermission(),
-        ::onPostNotificationGranted )
+        ::onPostNotificationGranted
+    )
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         onSetupNotificationChannel()
-        binding.notify.setOnClickListener {
+        findViewById<Button>(R.id.notify).setOnClickListener {
             onSendNotification()
+        }
+        findViewById<Button>(R.id.startButton).setOnClickListener {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                !isPostNotificationGranted()) {
+                requestPostNotification.launch(Manifest.permission.POST_NOTIFICATIONS)
+            } else {
+                val intent = Intent(this, DownloadService::class.java)
+                startForegroundService(intent)
+            }
         }
     }
     private fun createNotificationForBob(): Notification {

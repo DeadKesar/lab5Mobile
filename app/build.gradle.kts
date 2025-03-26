@@ -38,6 +38,7 @@ android {
 }
 
 dependencies {
+    implementation (libs.androidx.activity.ktx)
     implementation (libs.kotlinx.coroutines.android)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.core.ktx)
