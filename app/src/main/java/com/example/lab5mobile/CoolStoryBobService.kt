@@ -30,28 +30,22 @@ class CoolStoryBobService : Service(), CoolStoryBob {
     )
     override val stories: SharedFlow<String> = _stories.asSharedFlow()
 
-
-    override fun onCreate() {
-        super.onCreate()
-        Log.d("CoolStoryBobService", "onCreate: ")
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int
+    {
+        // имитация работы в потоке
+        Thread {
+            repeat(10) {
+                data ->
+                // каждую секунду отправляем историю
+                _stories.tryEmit("Story $data")
+                Thread.sleep(1000L)
+            }
+            Log.d("CoolStoryBobService", "onStartCommand: complete!")
+            stopSelf()
+        }.start()
+        return START_STICKY
     }
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-    // имитация работы в потоке
-    Thread {
-        repeat(10) {
-            data ->
-            // каждую секунду отправляем историю
-            _stories.tryEmit("Story $data")
-            Thread.sleep(10L)
-        }
-        Log.d("CoolStoryBobService", "onStartCommand: complete!")
-        stopSelf() }.start()
-        return START_STICKY }
     override fun onBind(intent: Intent?): IBinder {
         return binder
-    }
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d("CoolStoryBobService", "onDestroy: ")
     }
 }

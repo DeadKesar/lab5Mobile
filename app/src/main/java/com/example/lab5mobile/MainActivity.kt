@@ -19,9 +19,13 @@ class MainActivity : AppCompatActivity() {
     private val collStoryBobConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val coolStoryBob = (service as CoolStoryBobService.LocalBinder).getBob()
-            onProcessBobStories(coolStoryBob) }
-        override fun onServiceDisconnected(name: ComponentName?) { }
+            onProcessBobStories(coolStoryBob)
+        }
+        override fun onServiceDisconnected(name: ComponentName?) {
+
+        }
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityMainBinding.inflate(layoutInflater)
@@ -29,7 +33,8 @@ class MainActivity : AppCompatActivity() {
         binding.startService.setOnClickListener {
             val intent = Intent(this, CoolStoryBobService::class.java)
             startService(intent)
-            bindService(intent, collStoryBobConnection, Context.BIND_AUTO_CREATE) }
+            bindService(intent, collStoryBobConnection,
+                Context.BIND_AUTO_CREATE) }
     }
 
     private fun onProcessBobStories(coolStoryBob: CoolStoryBob) {
