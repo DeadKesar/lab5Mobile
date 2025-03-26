@@ -1,6 +1,7 @@
 package com.example.lab5mobile
 
 import android.app.Notification
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.os.Binder
@@ -12,6 +13,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
+private const val MY_CUSTOM_ACTION = "my_custom_action"
+private const val NOTIFICATION_REQUEST_CODE = 1
 
 // Интерфейс, чтобы ограничить возможности из вне
 interface CoolStoryBob {
@@ -34,6 +37,11 @@ class CoolStoryBobService : Service(), CoolStoryBob {
     override val stories: SharedFlow<String> = _stories.asSharedFlow()
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.getStringExtra(MY_CUSTOM_ACTION) != null) {
+            // реакция на MY_CUSTOM_ACTION
+            Log.d("CoolStoryBobService", "onStartCommand: ${intent.extras}")
+            return START_STICKY
+        }
         // установка Foreground service
         val notification = createNotification()
         startForeground(1, notification)
@@ -52,11 +60,24 @@ class CoolStoryBobService : Service(), CoolStoryBob {
     }
 
     private fun createNotification(): Notification {
+        // изначальный интент
+            val intent = Intent(applicationContext, CoolStoryBobService::class.java).apply {
+                putExtra(MY_CUSTOM_ACTION, "somedata")
+            }
+        // делаем PendingIntent
+            val pendingIntent = PendingIntent.getService( applicationContext,
+                NOTIFICATION_REQUEST_CODE, intent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
+
         return NotificationCompat.Builder(this, CoolStoryBobNotification.CHANNEL_ID)
             .setSmallIcon(R.drawable.baseline_cookie_24)
-            .setShowWhen(true) .setOngoing(true)
+            .setShowWhen(true)
+            .setOngoing(true)
             .setContentTitle("CoolStoryBobService started")
-            .setContentText("Story from bob") .build()
+            .setContentText("Story from bob")
+            .addAction(R.drawable.ic_play_arrow, "Play", pendingIntent)
+            .build()
     }
 
     override fun onBind(intent: Intent?): IBinder {
