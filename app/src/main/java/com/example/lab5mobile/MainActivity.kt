@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.lab5mobile.databinding.ActivityMainBinding
 import android.app.Notification
 import android.app.NotificationChannel
+import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 
 class MainActivity : AppCompatActivity() {
@@ -28,13 +29,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
     private fun createNotificationForBob(): Notification {
-        return NotificationCompat.Builder(this,
-            CoolStoryBobNotification.CHANNEL_ID)
-            .setSmallIcon(R.drawable.baseline_cookie_24)// иконка
+        return NotificationCompat.Builder(this, CoolStoryBobNotification.CHANNEL_ID)
+            .setSmallIcon(R.drawable.baseline_cookie_24)    // иконка
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle()) // свой стиль
+            .setCustomContentView(buildNotificationPanel()) // свой контент
             .setShowWhen(true) // время
             .setOngoing(true) // может ли пользователь его сам убрать
-        .setContentText("Story from bob") // текст
-        .build()
+            .setContentText("Story from bob") // текст
+            .build() }
+
+    private fun buildNotificationPanel( title: String = "Current story",
+                                        ): RemoteViews { // вся работа через API у RemoteViews
+            return RemoteViews(this.packageName,
+                R.layout.player_notification)
+                .apply {
+                    setTextViewText(R.id.notification_title, title)
+                }
     }
     private fun onSetupNotificationChannel() {
         // проверяем текущие устройство
