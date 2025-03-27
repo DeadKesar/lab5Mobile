@@ -32,7 +32,7 @@ class DownloadService () : Service() {
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
             CHANNEL_ID,
-            "Download Service",
+            getString(R.string.name_dl_serv),
             NotificationManager.IMPORTANCE_LOW
         )
         val manager = getSystemService(NotificationManager::class.java)
@@ -52,7 +52,7 @@ class DownloadService () : Service() {
     private fun updateNotification(progress: Int) {
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(getString(R.string.file_dl_serv))
-            .setContentText("Progress: $progress%")
+            .setContentText(getString(R.string.progress_with_prc_in_ser) + " $progress%")
             .setSmallIcon(android.R.drawable.stat_sys_download)
             .setProgress(100, progress, false)
             .setOngoing(true)
