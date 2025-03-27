@@ -1,12 +1,11 @@
 package com.example.lab5mobile
 
-import android.annotation.SuppressLint
+
 import android.app.*
 import android.content.Intent
 import android.os.IBinder
 import android.os.Handler
 import android.os.Looper
-import android.view.View
 import androidx.core.app.NotificationCompat
 
 class DownloadService () : Service() {
